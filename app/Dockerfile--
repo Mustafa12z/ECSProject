@@ -1,0 +1,38 @@
+# Stage 1: Build stage
+FROM node:18-alpine AS build
+
+# Setting the Working directory
+WORKDIR /app
+
+# Copying the package.json and yarn.lock to the WORKDIR
+COPY package.json yarn.lock ./
+
+# Installing dependencies
+RUN yarn install
+
+# Copying all app files to the container
+COPY . .
+
+# Building the application
+RUN yarn build
+
+# Stage 2: Production stage using distroless
+# Use Google's distroless Node.js image for production
+FROM gcr.io/distroless/nodejs18
+
+# Setting the WORKDIR
+WORKDIR /app
+
+# Copying the build files from the build stage
+COPY --from=build /app/dist /app/dist
+
+# Copying only necessary files (package.json, yarn.lock) for production
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/yarn.lock /app/yarn.lock
+
+# Exposing the port
+EXPOSE 3000
+
+# Starting the application
+CMD ["node", "dist/app.js"]
+
