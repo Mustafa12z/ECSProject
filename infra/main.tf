@@ -149,7 +149,7 @@ resource "aws_vpc_security_group_ingress_rule" "https-alb" {
 resource "aws_lb" "ecs_alb" {
   name               = var.elb-name
   load_balancer_type = var.load_balancer_type
-  subnets            = [aws_subnet.public-subnet.id, aws_subnet.public-subnetb.id] # Public subnets
+  subnets            = [aws_subnet.private-subnet.id, aws_subnet.private-subnetb.id]
   security_groups    = [aws_security_group.aws_alb_sg.id]
 
   tags = {
@@ -219,13 +219,41 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_cloudwatch_log_group" "ecs_threatmodel_log" {
+  name              = "/ecs/threatmodel-log"
+  retention_in_days = 7
+}
+
+resource "aws_iam_policy" "ecs_cloudwatch_policy" {
+  name = "ecs_cloudwatch_policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:eu-west-2:*:log-group:/ecs/threatmodel-log:*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy_attach" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = aws_iam_policy.ecs_cloudwatch_policy.arn
+}
+
 resource "aws_ecs_task_definition" "app" {
   family                   = "ecs-task-definition"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
-  memory                   = 2048
+  memory                   = 4096
   container_definitions = jsonencode([
     {
       name      = "threatcomposer"
@@ -233,16 +261,17 @@ resource "aws_ecs_task_definition" "app" {
       essential = true
       portMappings = [
         {
-          containerPort = 3000
-          hostPort      = 3000
+          containerPort = 443
+          hostPort      = 443
         }
       ]
       logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = "/ecs/my-app"
-          "awslogs-region"        = "eu-west-2"
-          "awslogs-stream-prefix" = "ecs"
+        logDriver : "awslogs"
+        options : {
+          "awslogs-group"         : "/ecs/threatmodel-log"
+          "awslogs-create-group"  : "true"
+          "awslogs-region"        : "eu-west-2"
+          "awslogs-stream-prefix" : "ecs"
         }
       }
     }
@@ -257,7 +286,7 @@ resource "aws_ecs_service" "main" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups  = [aws_security_group.ecs_task_sg.id]
+    security_groups  = [aws_security_group.aws_sg.id]
     subnets          = [aws_subnet.private-subnet.id, aws_subnet.private-subnetb.id]
     assign_public_ip = false
   }
