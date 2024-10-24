@@ -329,11 +329,19 @@ resource "aws_ecs_service" "main" {
 }
 
 
-resource "aws_route53_record" "www" {
-  zone_id = aws_route53_zone.primary.zone_id
-  name    = "www.example.com"
-  type    = "A"
-  ttl     = 300
-  records = [aws_eip.lb.public_ip]
+resource "aws_route53_zone" "main" {
+  name = "ameenbharuchi2.com"
+}
+
+resource "aws_route53_record" "tm_subdomain" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "tm.ameenbharuchi2.com"
+  type    = "CNAME"
+
+  alias {
+    name                   = aws_lb.ecs_alb.dns_name
+    zone_id                = aws_lb.ecs_alb.zone_id
+    evaluate_target_health = true
+  }
 }
 
