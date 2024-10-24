@@ -74,7 +74,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat-gateway.id
   }
 
@@ -111,6 +111,10 @@ resource "aws_route_table_association" "public-rt" {
   route_table_id = aws_route_table.public.id
 }
 
+resource "aws_route_table_association" "public-rt-2" {
+  subnet_id      = aws_subnet.public-subnetb.id
+  route_table_id = aws_route_table.public.id
+}
 
 resource "aws_security_group" "aws_sg" {
   vpc_id = aws_vpc.main.id
@@ -146,10 +150,18 @@ resource "aws_vpc_security_group_ingress_rule" "https-alb" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
+resource "aws_vpc_security_group_egress_rule" "egress-alb" {
+  security_group_id = aws_security_group.aws_alb_sg.id
+  ip_protocol       = "TCP"
+  from_port         = 3000
+  to_port           = 3000
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
 resource "aws_lb" "ecs_alb" {
   name               = var.elb-name
   load_balancer_type = var.load_balancer_type
-  subnets            = [aws_subnet.private-subnet.id, aws_subnet.private-subnetb.id]
+  subnets            = [aws_subnet.public-subnet.id, aws_subnet.public-subnetb.id]
   security_groups    = [aws_security_group.aws_alb_sg.id]
 
   tags = {
@@ -170,10 +182,10 @@ resource "aws_lb_listener" "ecs_alb_listener" {
 }
 
 resource "aws_lb_target_group" "tg-fargate" {
-  vpc_id   = aws_vpc.main.id
-  name     = "tg-fargate-1"
-  protocol = "HTTP"
-  port     = "3000"
+  vpc_id      = aws_vpc.main.id
+  name        = "tg-fargate-1"
+  protocol    = "HTTP"
+  port        = "3000"
   target_type = "ip"
 
   health_check {
@@ -201,7 +213,7 @@ resource "aws_iam_role" "ecs_execution_role" {
       {
         Effect = "Allow",
         Principal = {
-          Service = "ecs-tasks.amazonaws.com"  # ECS service principal
+          Service = "ecs-tasks.amazonaws.com" # ECS service principal
         },
         Action = "sts:AssumeRole"
       }
@@ -231,8 +243,8 @@ resource "aws_iam_policy" "ecs_cloudwatch_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
@@ -261,16 +273,16 @@ resource "aws_ecs_task_definition" "app" {
       essential = true
       portMappings = [
         {
-          containerPort = 443
-          hostPort      = 443
+          containerPort = 3000
+          hostPort      = 3000
         }
       ]
       logConfiguration = {
         logDriver : "awslogs"
         options : {
-          "awslogs-group"         : "/ecs/threatmodel-log"
-          "awslogs-create-group"  : "true"
-          "awslogs-region"        : "eu-west-2"
+          "awslogs-group" : "/ecs/threatmodel-log"
+          "awslogs-create-group" : "true"
+          "awslogs-region" : "eu-west-2"
           "awslogs-stream-prefix" : "ecs"
         }
       }
@@ -302,10 +314,10 @@ resource "aws_security_group" "ecs_task_sg" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    security_groups = [aws_security_group.aws_alb_sg.id]  
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.aws_alb_sg.id]
   }
 
   egress {
