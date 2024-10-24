@@ -1,59 +1,59 @@
 variable "vpc_cidr_block" {
   description = "The CIDR block for the VPC."
-  type = string
+  type        = string
 }
 
 variable "enable_dns_support" {
   description = "Allow DNS support in the VPC."
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "enable_dns_hostnames" {
   description = "Allow DNS hostnames in the VPC."
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "vpc_name" {
   description = "Name tag for the VPC."
-  type = string
+  type        = string
 }
 
 variable "igw_name" {
   description = "Name tag for the Internet Gateway."
-  type  = string
+  type        = string
 }
 
 variable "subnet_cidr_block" {
   description = "CIDR block for the subnet."
-  type  = string
+  type        = string
 }
 
 variable "private_subnet_cidr_block" {
   description = "CIDR block for the private subnet."
-  type  = string
+  type        = string
 }
 
 variable "public_subnet_name" {
   description = "name for subnet"
-  type = string
+  type        = string
 }
 
 variable "private_subnet_name" {
   description = "name for subnet"
-  type = string
+  type        = string
 }
 
 
 variable "route_table_name" {
   description = "Name for the route table."
-  type  = string
+  type        = string
 }
 
 variable "sg_name" {
   description = "Security group name"
-  type = string
+  type        = string
 }
 
 variable "ecs-cluster-name" {
@@ -62,17 +62,37 @@ variable "ecs-cluster-name" {
 }
 
 variable "capacity_providers" {
-  type = list(string)
-  description = "capacity providers for ecs cluster" 
+  type        = list(string)
+  description = "capacity providers for ecs cluster"
 }
 
 variable "load_balancer_type" {
-  type = string
+  type        = string
   description = "type of load balancer"
 }
 
-variable "elb_name" {
-  type = string
+variable "elb-name" {
+  type        = string
   description = "name of the elb"
-  
+
+}
+
+variable "ecs-fargate-name" {
+  type        = string
+  description = "name of ecs fargate"
+}
+
+variable "ecr-uri" {
+  type        = string
+  description = "uri for the container in ecr"
+}
+
+variable "task-def-cpu" {
+  type        = number
+  description = "task definition cpu"
+}
+
+variable "certificate_arn" {
+  type        = string
+  description = "certificate"
 }
