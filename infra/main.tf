@@ -180,7 +180,7 @@ resource "aws_lb_listener" "ecs_alb_listener_http" {
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_lb.ecs_alb.arn
-  certificate_arn   = var.certificate_arn
+  certificate_arn   = aws_acm_certificate_validation.example.certificate_arn
   port              = "443"
   protocol          = "HTTPS"
 
@@ -329,13 +329,59 @@ resource "aws_ecs_service" "main" {
 }
 
 
-resource "aws_route53_zone" "main" {
-  name = "ameenbharuchi2.com"
+
+data "aws_route53_zone" "hz" {
+  name = var.hosted_zone  
 }
 
+
+resource "aws_acm_certificate" "cert" {
+  domain_name       = var.hosted_zone  
+  validation_method = "DNS"
+
+  subject_alternative_names = [
+    "tm.mustafamirreh.com"
+  ]
+
+  
+
+  tags = {
+    Environment = "test"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+resource "aws_route53_record" "acm_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      type    = dvo.resource_record_type
+      value   = dvo.resource_record_value
+      zone_id = data.aws_route53_zone.hz.zone_id
+    }
+  }
+
+  zone_id = each.value.zone_id
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.value]
+  ttl     = 300
+}
+
+
+resource "aws_acm_certificate_validation" "example" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
+}
+
+
 resource "aws_route53_record" "tm_subdomain" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = "tm.ameenbharuchi2.com"
+  zone_id = data.aws_route53_zone.hz.zone_id
+  name    = var.subdomain_name 
   type    = "CNAME"
 
   alias {
@@ -344,4 +390,17 @@ resource "aws_route53_record" "tm_subdomain" {
     evaluate_target_health = true
   }
 }
+
+resource "aws_route53_record" "tm_hostdomain" {
+  zone_id = data.aws_route53_zone.hz.zone_id
+  name    = var.hosted_zone 
+  type    = "CNAME"
+
+  alias {
+    name                   = aws_lb.ecs_alb.dns_name
+    zone_id                = aws_lb.ecs_alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
 

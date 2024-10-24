@@ -92,7 +92,12 @@ variable "task-def-cpu" {
   description = "task definition cpu"
 }
 
-variable "certificate_arn" {
-  type        = string
-  description = "certificate"
+variable "hosted_zone" {
+  type = string
+  description = "The hosted zone"
+}
+
+variable "subdomain_name" {
+  type = string
+  description = "The specified format for the assignment"
 }
