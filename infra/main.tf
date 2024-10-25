@@ -180,7 +180,7 @@ resource "aws_lb_listener" "ecs_alb_listener_http" {
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_lb.ecs_alb.arn
-  certificate_arn   = var.certificate_arn
+  certificate_arn   = "arn:aws:acm:eu-west-2:590184076390:certificate/390e1827-22af-4dd5-926c-fce3c2f134d5"
   port              = "443"
   protocol          = "HTTPS"
 
@@ -329,19 +329,23 @@ resource "aws_ecs_service" "main" {
 }
 
 
-resource "aws_route53_zone" "main" {
-  name = "ameenbharuchi2.com"
+
+data "aws_route53_zone" "hz" {
+  name = var.hosted_zone  
 }
+
+
 
 resource "aws_route53_record" "tm_subdomain" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = "tm.ameenbharuchi2.com"
+  zone_id = data.aws_route53_zone.hz.zone_id
+  name    = var.subdomain_name
   type    = "CNAME"
-
-  alias {
-    name                   = aws_lb.ecs_alb.dns_name
-    zone_id                = aws_lb.ecs_alb.zone_id
-    evaluate_target_health = true
-  }
+  
+ 
+  ttl    = 300
+  records = [aws_lb.ecs_alb.dns_name]
 }
+
+
+
 
