@@ -93,12 +93,12 @@ variable "task-def-cpu" {
 }
 
 variable "hosted_zone" {
-  type = string
+  type        = string
   description = "The hosted zone"
 }
 
 variable "subdomain_name" {
-  type = string
+  type        = string
   description = "The specified format for the assignment"
 }
 
