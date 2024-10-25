@@ -180,7 +180,7 @@ resource "aws_lb_listener" "ecs_alb_listener_http" {
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_lb.ecs_alb.arn
-  certificate_arn   = aws_acm_certificate_validation.example.certificate_arn
+  certificate_arn   = "arn:aws:acm:eu-west-2:590184076390:certificate/390e1827-22af-4dd5-926c-fce3c2f134d5"
   port              = "443"
   protocol          = "HTTPS"
 
@@ -335,72 +335,17 @@ data "aws_route53_zone" "hz" {
 }
 
 
-resource "aws_acm_certificate" "cert" {
-  domain_name       = var.hosted_zone  
-  validation_method = "DNS"
-
-  subject_alternative_names = [
-    "tm.mustafamirreh.com"
-  ]
-
-  
-
-  tags = {
-    Environment = "test"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-
-resource "aws_route53_record" "acm_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
-      name    = dvo.resource_record_name
-      type    = dvo.resource_record_type
-      value   = dvo.resource_record_value
-      zone_id = data.aws_route53_zone.hz.zone_id
-    }
-  }
-
-  zone_id = each.value.zone_id
-  name    = each.value.name
-  type    = each.value.type
-  records = [each.value.value]
-  ttl     = 300
-}
-
-
-resource "aws_acm_certificate_validation" "example" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
-}
-
 
 resource "aws_route53_record" "tm_subdomain" {
   zone_id = data.aws_route53_zone.hz.zone_id
-  name    = var.subdomain_name 
+  name    = var.subdomain_name
   type    = "CNAME"
-
-  alias {
-    name                   = aws_lb.ecs_alb.dns_name
-    zone_id                = aws_lb.ecs_alb.zone_id
-    evaluate_target_health = true
-  }
+  
+ 
+  ttl    = 300
+  records = [aws_lb.ecs_alb.dns_name]
 }
 
-resource "aws_route53_record" "tm_hostdomain" {
-  zone_id = data.aws_route53_zone.hz.zone_id
-  name    = var.hosted_zone 
-  type    = "CNAME"
 
-  alias {
-    name                   = aws_lb.ecs_alb.dns_name
-    zone_id                = aws_lb.ecs_alb.zone_id
-    evaluate_target_health = true
-  }
-}
 
 

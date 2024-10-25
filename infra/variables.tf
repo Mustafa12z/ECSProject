@@ -101,3 +101,4 @@ variable "subdomain_name" {
   type = string
   description = "The specified format for the assignment"
 }
+
