@@ -37,6 +37,7 @@ jobs:
       - name: Terraform Init
         run: |
             cd ..
+            cd infra
             pwd
             terraform init
 
