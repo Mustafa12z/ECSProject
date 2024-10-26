@@ -4,7 +4,6 @@ variable "ecs-fargate-name" {
 }
 
 variable "ecr-uri" {
-  type        = string
   description = "uri for the container in ecr"
 }
 

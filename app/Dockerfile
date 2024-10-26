@@ -10,6 +10,7 @@ COPY package.json yarn.lock ./
 # Installing the dependencies
 RUN yarn install
 
+
 # Copying app to the container
 COPY . .
 

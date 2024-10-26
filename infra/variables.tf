@@ -93,7 +93,6 @@ variable "ecs-fargate-name" {
 }
 
 variable "ecr-uri" {
-  type        = string
   description = "uri for the container in ecr"
 }
 
@@ -112,3 +111,8 @@ variable "subdomain_name" {
   description = "The specified format for the assignment"
 }
 
+variable "aws_access_key_id" {}
+
+variable "aws_secret_access_key" {}
+
+variable "aws_region" {}
