@@ -22,7 +22,6 @@ module "alb" {
 
 module "ecs" {
   source = "./modules/ecs"
-  ecr-uri = "590184076390.dkr.ecr.eu-west-2.amazonaws.com/ecs-project:latest"
   ecs-fargate-name = "fargate"
   task-def-cpu = 1024
   ecs-cluster-name = "threatcomposer-cluster"
