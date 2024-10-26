@@ -6,7 +6,9 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN yarn install --network-timeout 100000
+RUN yarn install
+
+COPY . .
 
 # #Stage 2: prod
 
