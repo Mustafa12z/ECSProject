@@ -11,8 +11,6 @@ COPY package.json yarn.lock ./
 RUN yarn install
 
 
-
-
 # Copying app to the container
 COPY . .
 
