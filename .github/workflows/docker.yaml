@@ -28,32 +28,3 @@ jobs:
             echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
             docker build -t $ECR_URI .
             docker push $ECR_URI
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init
-        run: |
-            ls
-            cd infra
-            pwd
-            terraform init
-
-      - name: Terraform Validate
-        run: |
-            cd infra
-            terraform validate
-
-
-      - name: Terraform Plan
-        run: |
-            cd infra
-            ls -l
-            terraform plan
-            -var="aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -var="aws_region=${{ env.AWS_REGION }}" \
-            -var="ecr_uri=${{ env.ECR_URI }}" \
-            -out=tfplan
