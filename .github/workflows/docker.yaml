@@ -16,18 +16,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com
+     # -  name: Log in to Amazon ECR
+        # run: |
+        #  aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com
 
-      - name: Build Docker image
-        run: |
-            cd app
-            IMAGE_TAG=$(git rev-parse --short HEAD)
-            ECR_URI=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/ecs-project:$IMAGE_TAG
-            echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
-            docker build -t $ECR_URI .
-            docker push $ECR_URI
+     # - name: Build Docker image
+     #   run: |
+     #       cd app
+     #       IMAGE_TAG=$(git rev-parse --short HEAD)
+     #       ECR_URI=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/ecs-project:$IMAGE_TAG
+     #       echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
+     #       docker build -t $ECR_URI .
+     #       docker push $ECR_URI
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -37,6 +37,7 @@ jobs:
       - name: Terraform Init
         run: |
             cd ..
+            ls
             cd infra
             pwd
             terraform init
