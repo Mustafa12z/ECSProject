@@ -100,8 +100,20 @@ variable "subdomain_name" {
   description = "The specified format for the assignment"
 }
 
-variable "aws_access_key_id" {}
+variable "aws_access_key_id" {
+  description = "The AWS access key ID for authentication"
+  type        = string
+  sensitive   = true
+}
 
-variable "aws_secret_access_key" {}
+variable "aws_secret_access_key" {
+  description = "The AWS secret access key for authentication"
+  type        = string
+  sensitive   = true
+}
 
-variable "aws_region" {}
+variable "aws_region" {
+  description = "The AWS region where resources will be managed"
+  type        = string
+  default     = "us-west-2" # Optional: Set a default if desired
+}
