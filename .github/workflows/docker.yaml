@@ -24,7 +24,7 @@ jobs:
         run: |
             cd app
             IMAGE_TAG=$(git rev-parse --short HEAD)
-            ECR_URI=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/threat-composer-app:$IMAGE_TAG
+            ECR_URI=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/ecs-project:$IMAGE_TAG
             echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
             docker build -t $ECR_URI .
             docker push $ECR_URI
@@ -41,5 +41,5 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var="aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" -var="aws_region=$AWS_REGION" -var="ecr_uri=${{ env.ECR_URI }}" -out=tfplan
+        run: terraform plan -var="aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" -var="aws_region=${{vars.AWS_REGION}}" -var="ecr_uri=${{ env.ECR_URI }}" -out=tfplan
 
