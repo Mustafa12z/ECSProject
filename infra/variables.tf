@@ -115,5 +115,5 @@ variable "aws_secret_access_key" {
 variable "aws_region" {
   description = "The AWS region where resources will be managed"
   type        = string
-  default     = "us-west-2" # Optional: Set a default if desired
+  default     = "eu-west-2" 
 }
