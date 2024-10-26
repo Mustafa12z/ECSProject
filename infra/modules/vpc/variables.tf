@@ -1,7 +1,3 @@
-variable "vpc_cidr_block" {
-  description = "The CIDR block for the VPC."
-  type        = string
-}
 
 variable "enable_dns_support" {
   description = "Allow DNS support in the VPC."
@@ -25,15 +21,6 @@ variable "igw_name" {
   type        = string
 }
 
-variable "subnet_cidr_block" {
-  description = "CIDR block for the subnet."
-  type        = string
-}
-
-variable "private_subnet_cidr_block" {
-  description = "CIDR block for the private subnet."
-  type        = string
-}
 
 variable "public_subnet_name" {
   description = "name for subnet"

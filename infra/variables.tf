@@ -1,7 +1,4 @@
-variable "vpc_cidr_block" {
-  description = "The CIDR block for the VPC."
-  type        = string
-}
+
 
 variable "enable_dns_support" {
   description = "Allow DNS support in the VPC."
@@ -25,15 +22,7 @@ variable "igw_name" {
   type        = string
 }
 
-variable "subnet_cidr_block" {
-  description = "CIDR block for the subnet."
-  type        = string
-}
 
-variable "private_subnet_cidr_block" {
-  description = "CIDR block for the private subnet."
-  type        = string
-}
 
 variable "public_subnet_name" {
   description = "name for subnet"
@@ -92,11 +81,6 @@ variable "ecs-fargate-name" {
   description = "name of ecs fargate"
 }
 
-variable "ecr-uri" {
-  type        = string
-  description = "uri for the container in ecr"
-}
-
 variable "task-def-cpu" {
   type        = number
   description = "task definition cpu"
@@ -112,3 +96,20 @@ variable "subdomain_name" {
   description = "The specified format for the assignment"
 }
 
+variable "aws_access_key_id" {
+  description = "The AWS access key ID for authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_secret_access_key" {
+  description = "The AWS secret access key for authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_region" {
+  description = "The AWS region where resources will be managed"
+  type        = string
+  default     = "eu-west-2" 
+}

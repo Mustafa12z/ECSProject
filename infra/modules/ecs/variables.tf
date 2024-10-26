@@ -3,10 +3,6 @@ variable "ecs-fargate-name" {
   description = "name of ecs fargate"
 }
 
-variable "ecr-uri" {
-  type        = string
-  description = "uri for the container in ecr"
-}
 
 variable "task-def-cpu" {
   type        = number

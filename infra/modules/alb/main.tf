@@ -9,7 +9,7 @@ resource "aws_lb" "ecs_alb" {
   }
 }
 
-resource "aws_lb_listener" "ecs_alb_listener_http" {
+resource "aws_lb_listener" "ecs_alb_listener_ttph" {
   load_balancer_arn = aws_lb.ecs_alb.arn
   port              = "80"
   protocol          = "HTTP"

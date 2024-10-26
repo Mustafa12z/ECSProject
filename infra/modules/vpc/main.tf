@@ -1,5 +1,5 @@
 resource "aws_vpc" "main" {
-  cidr_block           = var.vpc_cidr_block
+  cidr_block            = "10.0.0.0/16"
   enable_dns_support   = var.enable_dns_support
   enable_dns_hostnames = var.enable_dns_hostnames
 
@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_subnet" "public-subnet" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_cidr_block
+  cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-2a"
   tags = {
     Name = var.public_subnet_name
@@ -36,7 +36,7 @@ resource "aws_subnet" "public-subnetb" {
 
 resource "aws_subnet" "private-subnet" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidr_block
+  cidr_block        = "10.0.3.0/24"
   availability_zone = "eu-west-2a"
 
   tags = {
