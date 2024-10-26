@@ -1,9 +1,9 @@
 name: Pipelines for ECS Project
 on:
   push:
-    paths:
-      - 'Dockerfile'
-      - 'docker/**'
+   # paths:
+    #  - 'Dockerfile'
+    #  - 'docker/**'
 
 jobs:
   deploy:
