@@ -1,26 +1,24 @@
-# Using base image node.js
-FROM node:18-alpine 
+# #Stage 1: Build Stage
 
-# Setting the Working directory
+FROM node:18-alpine AS build 
+
 WORKDIR /app
 
-#Copying the package.json and yarn.lock to the WORKDIR
 COPY package.json yarn.lock ./
 
-# Installing the dependencies
-RUN yarn install
+RUN yarn install --network-timeout 100000
 
+# #Stage 2: prod
 
-# Copying app to the container
-COPY . .
+FROM node:18-alpine 
 
-RUN yarn build
+WORKDIR /app
 
-#Exposing the port our localhost will be on 
+COPY --from=build /app /app 
+
 EXPOSE 3000
 
-# Starting the application
-CMD [ "yarn", "start" ]
+CMD ["yarn", "start"]
 
 
 
