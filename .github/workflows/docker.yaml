@@ -18,10 +18,11 @@ jobs:
 
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
+          aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com
 
       - name: Build Docker image
         run: |
+            cd app
             IMAGE_TAG=$(git rev-parse --short HEAD)
             ECR_URI=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/threat-composer-app:$IMAGE_TAG
             echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
