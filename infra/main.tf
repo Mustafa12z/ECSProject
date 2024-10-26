@@ -38,3 +38,7 @@ module "route-53" {
   hosted_zone = "teamcharlie.mustafamirreh.com"
   dns_name = module.alb.alb_dns_name
 }
+
+provider "aws" {
+  region = "eu-west-2"
+}
