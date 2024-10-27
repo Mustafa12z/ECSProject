@@ -1,0 +1,46 @@
+name: Terraform Destroy
+
+on:
+  push:
+    branches:
+      - main  
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Are you sure you want to destroy the infrastructure?"
+        required: true
+        type: choice
+        options:
+          - "yes"
+          - "no"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+    
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0  
+    
+      - name: Terraform Init
+        run: |
+          cd infra
+          terraform init
+    
+      - name: Terraform Validate
+        run: |
+          cd infra
+          terraform validate
+    
+      - name: Terraform Destroy
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes' }}
+        run: |
+          cd infra
+          terraform destroy -auto-approve 
