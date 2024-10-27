@@ -1,0 +1,32 @@
+name: Terraform Apply
+
+on:
+  pull_request:
+    branches:
+      - main  
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Are you sure you want to deploy the infrastructure?"
+        required: true
+        type: choice
+        options:
+          - "yes"
+          - "no"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes' }}
+    env:
+      TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Run Terraform Plan
+        uses: ./.github/workflows/terraform-plan.yaml  
+
+      - name: Terraform Apply
+        run: |
+          cd infra
+          terraform apply -auto-approve tfplan
+
