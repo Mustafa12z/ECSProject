@@ -66,33 +66,132 @@ If you want to view the threat composer tool locally,folow the steps below
    ```
    Use this command to stop the running container when you no longer need the application running. Replace `<container-name>` with the name you assigned to the container when starting it.
 
-4. **Remove the Docker container:**
-   ```bash
-   docker rm <container-name>
-   ```
-   After stopping the container, you can remove it using this command. This helps keep your Docker environment clean by removing unused containers.
+## Project Breakdown
+
+### Terraform Breakdown
+
+The Terraform configuration for the Threat Composer application is organized into multiple modules, each responsible for deploying specific components of the AWS infrastructure. We chose this modular approach to maintain a clean, scalable, and reusable codebase. Below is a breakdown of how these modules are structured and why this method was chosen.
+
+#### Root `main.tf`
+The `main.tf` file in the root directory serves as the central control point for deploying the infrastructure. It pulls together the individual modules (ECS, ALB, VPC, and Route 53) to create a cohesive environment for the application. This file defines the overall configuration and specifies how these modules interact with each other.
+
+The key benefits of this approach include:
+- **Simplified Management:** By organizing the infrastructure into separate modules, each with a clear purpose, it becomes easier for us to manage and update specific parts of the infrastructure without affecting others.
+- **Reusability:** Modules can be reused across different projects or environments. For instance, the VPC module can be utilized for other applications that require similar network configurations.
+- **Scalability:** Each component can be scaled independently, offering greater flexibility as the project grows.
+
+### Module Breakdown
+
+#### 1. ECS Module
+The **ECS (Elastic Container Service) module** is responsible for deploying the containerized application. It provisions the ECS cluster and creates the necessary task definitions and services to run the Docker containers.
+
+**Key Components:**
+- **ECS Cluster:** A scalable cluster that hosts the Docker containers.
+- **Task Definitions & Services:** Define how the containers are deployed, including settings like CPU and memory allocation, networking, and scaling policies.
+
+#### 2. ALB Module
+The **ALB (Application Load Balancer) module** sets up an ALB that routes incoming traffic to the appropriate ECS services. This module handles the creation of target groups, listener rules, and health checks to ensure reliable routing.
+
+**Key Components:**
+- **Load Balancer:** Distributes incoming traffic across multiple containers to ensure high availability.
+- **Target Groups & Health Checks:** Manage how traffic is routed and monitored across containers, ensuring that only healthy containers receive traffic.
+
+#### 3. VPC Module
+The **VPC (Virtual Private Cloud) module** provisions a dedicated network environment for the application, including subnets, route tables, and security groups. It ensures that all the components are deployed in a secure and isolated network.
+
+**Key Components:**
+- **Subnets (Public & Private):** Separates network resources based on accessibility requirements. Public subnets are used for load balancers, while private subnets host ECS containers.
+- **Security Groups:** Control inbound and outbound traffic to ensure secure communication.
+- **Route Tables:** Manage routing between different subnets and internet gateways.
+
+#### 4. Route 53 Module
+The **Route 53 module** handles DNS management and domain routing, ensuring that the application is accessible via a friendly domain name. It integrates with AWS ACM (Certificate Manager) for SSL certificate management, enabling secure HTTPS communication.
+
+**Key Components:**
+- **Hosted Zones & DNS Records:** Manage domain routing, ensuring that users can reach the application through a custom domain.
+- **SSL Certificates (via ACM):** Enable encrypted communication, enhancing security for users.
+
+### Dockerfile Breakdown
+
+The Dockerfile now consists of two distinct stages labeled **"build"** and **"production"**. Below is a detailed examination of each stage:
+
+#### Stage 1: Build
+For the initial stage, we use `node:18-alpine` as the base image, which is known for its minimal footprint compared to the standard Node.js images. The operations performed in this stage include:
+
+1. **Setting Up the Working Directory:** 
+   - We establish `/app` as the working directory.
+
+2. **Copying Necessary Files:** 
+   - Key files such as `package.json` and `yarn.lock` are transferred into the image.
+
+3. **Installing Dependencies:** 
+   - We execute `yarn install` with an extended network timeout to ensure all dependencies are thoroughly fetched and installed.
+
+4. **Copying Application Files:** 
+   - All necessary application files are copied into the Docker image.
+
+This stage focuses on assembling the application in a controlled, Docker-contained environment. It ensures that only essential dependencies and build tools are included in the final production image.
+
+#### Stage 2: Production
+The second stage also starts with the `node:18-alpine` base image. This part of the process is streamlined to include only what is necessary for running the application in a production environment:
+
+1. **Preparing the Application:** 
+   - The entire application directory from the build stage is copied over to the new stage. This method ensures that the production image contains only the compiled application and its runtime dependencies, excluding any build-specific tools and intermediate files.
+
+2. **Exposing the Port:** 
+   - The Dockerfile specifies port `3000` for the application, making it accessible on this port.
+
+3. **Starting the Application:** 
+   - The final command in the Dockerfile is set to run the application using `yarn start`.
+
+### Importance of Multi-Stage Builds
+Multi-stage builds provide significant advantages:
+
+1. **Efficiency in Image Size:** 
+   - By separating the build environment from the production environment, we significantly reduce the final image size, which speeds up the deployment process and minimizes runtime resource utilization.
+
+2. **Security:** 
+   - Smaller images generally contain fewer components, which can reduce the attack surface of the container.
+
+3. **Cost-Effective:** 
+   - Smaller images mean less storage and bandwidth consumption, translating to cost savings, especially in scaled environments.
+
+ 
 
 ## CICD Pipelines
 
 ### Docker.Yaml
 
-The docker.yaml pipeline is explained below, it is the pipeline we have that is responsible for building the docker image and uploading it to Amazon ECR, it is defined so that the build and push only triggers when a change has been made to the application code
+The `docker.yaml` pipeline is explained below, it is the pipeline we have that is responsible for building the docker image and uploading it to Amazon ECR, it is defined so that the build and push only triggers when a change has been made to the application code
 
-Checkout Code: Pulls the latest code from the repository.
-Log in to Amazon ECR: Authenticates Docker with ECR, allowing it to push images to your ECR repository.
-Build and Push Docker Image:
-Builds the Docker image from the Dockerfile in the app directory.
-Pushes the tagged image to the specified ECR repository.
+- **Checkout Code:** 
+  - Pulls the latest code from the repository.
+- **Log in to Amazon ECR:** 
+  - Authenticates Docker with ECR, allowing it to push images to your ECR repository.
+- **Build and Push Docker Image:**
+  - Builds the Docker image from the Dockerfile in the app directory.
+  - Pushes the tagged image to the specified ECR repository.
 
 ### Terraform YAML files
 
-The terraform pipelines we have, are responsible for terraform plan, apply and destroy. They are triggered only when a change has been ade to the tf config
+The terraform pipelines we have, are responsible for terraform plan, apply and destroy. They are triggered only when a change has been made to the tf config
 
-The terraform plan pipeline is set which means it runs on a push from any branch. The terraform apply and destroy pipelines can only be triggered manually using workflow-dispatch on the main branch (Once a PR has been completed). 
+- The **terraform plan pipeline** is set which means it runs on a push from any branch. The terraform apply and destroy pipelines can only be triggered manually using `workflow-dispatch` on the main branch (Once a PR has been completed). 
 
-Checkout Code: Retrieves the latest repository files.
-Setup Terraform: Installs and sets up Terraform in the workflow environment.
-Terraform Init: Initializes the Terraform configuration and downloads provider plugins.
-Terraform Plan: Creates an execution plan, displaying the resources Terraform will create or modify.
-Terraform Apply: Applies the configuration to provision the infrastructure if triggered manually.
-Terraform Destroy: Applies the destroy to the infrastructure if triggered manually within the main branch.
+- **Checkout Code:** 
+  - Retrieves the latest repository files.
+- **Setup Terraform:** 
+  - Installs and sets up Terraform in the workflow environment.
+- **Terraform Init:** 
+  - Initializes the Terraform configuration and downloads provider plugins.
+- **Terraform Plan:** 
+  - Creates an execution plan, displaying the resources Terraform will create or modify.
+- **Terraform Apply:** 
+  - Applies the configuration to provision the infrastructure if triggered manually.
+- **Terraform Destroy:** 
+  - Applies the destroy to the infrastructure if triggered manually within the main branch.
+
+
+## Architecture Diagram
+
+![alt text](aws.PNG)
