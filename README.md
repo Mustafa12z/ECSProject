@@ -76,7 +76,7 @@ If you want to view the threat composer tool locally,folow the steps below
 
 ### Docker.Yaml
 
-The docker.yaml pipeline is explained below, it is the pipeline we have that is responsible for building the docker image and uploading it to Amazon ECR, it is defined so that the build and push only triggers when a change has been made to the dockerfile
+The docker.yaml pipeline is explained below, it is the pipeline we have that is responsible for building the docker image and uploading it to Amazon ECR, it is defined so that the build and push only triggers when a change has been made to the application code
 
 Checkout Code: Pulls the latest code from the repository.
 Log in to Amazon ECR: Authenticates Docker with ECR, allowing it to push images to your ECR repository.
@@ -86,7 +86,7 @@ Pushes the tagged image to the specified ECR repository.
 
 ### Terraform YAML files
 
-The terraform pipelines we have, are responsible for terraform plan, apply and destroy. 
+The terraform pipelines we have, are responsible for terraform plan, apply and destroy. They are triggered only when a change has been ade to the tf config
 
 The terraform plan pipeline is set which means it runs on a push from any branch. The terraform apply and destroy pipelines can only be triggered manually using workflow-dispatch on the main branch (Once a PR has been completed). 
 
