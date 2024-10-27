@@ -15,7 +15,11 @@ on:
           - "no"
 
 jobs:
-  deploy:
+  plan:
+    uses: Mustafa12z/ECSProject/.github/workflows/plan.yaml@main 
+
+  apply:
+    needs: plan  # Waits for the 'plan' job to complete
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes' }}
     env:
@@ -25,11 +29,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Run Terraform Plan
-        uses: Mustafa12z/ECSProject/.github/workflows/plan.yaml@main
-
       - name: Terraform Apply
         run: |
           cd infra
           terraform apply -auto-approve tfplan
-
