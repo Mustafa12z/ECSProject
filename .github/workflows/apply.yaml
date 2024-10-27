@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Terraform Plan
-        uses: ./.github/workflows/terraform-plan.yaml  
+        uses: ./.github/workflows/plan.yaml  
 
       - name: Terraform Apply
         run: |
