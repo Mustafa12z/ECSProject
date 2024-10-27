@@ -25,13 +25,13 @@ If you want to view the threat composer tool locally,folow the steps below
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone <ecs-project>
    ```
    This command will copy the project repository from the remote server (such as GitHub) to your local machine. Ensure you have the correct URL for the repository to get all the necessary files and code.
 
 2. **Navigate to the project directory:**
    ```bash
-   cd <project-directory>
+   cd <app>
    ```
    After cloning the repository, move into the project directory where all the application files are located. This is essential for running further commands and setting up the application.
 
