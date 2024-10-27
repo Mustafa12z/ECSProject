@@ -72,3 +72,27 @@ If you want to view the threat composer tool locally,folow the steps below
    ```
    After stopping the container, you can remove it using this command. This helps keep your Docker environment clean by removing unused containers.
 
+## CICD Pipelines
+
+### Docker.Yaml
+
+The docker.yaml pipeline is explained below, it is the pipeline we have that is responsible for building the docker image and uploading it to Amazon ECR
+
+Checkout Code: Pulls the latest code from the repository.
+Log in to Amazon ECR: Authenticates Docker with ECR, allowing it to push images to your ECR repository.
+Build and Push Docker Image:
+Builds the Docker image from the Dockerfile in the app directory.
+Pushes the tagged image to the specified ECR repository.
+
+### Terraform YAML files
+
+The terraform pipelines we have, are responsible for terraform plan, apply and destroy. 
+
+The terraform plan pipeline is set which means it runs on a push from any branch. The terraform apply and destroy pipelines can only be triggered manually using workflow-dispatch on the main branch (Once a PR has been completed). 
+
+Checkout Code: Retrieves the latest repository files.
+Setup Terraform: Installs and sets up Terraform in the workflow environment.
+Terraform Init: Initializes the Terraform configuration and downloads provider plugins.
+Terraform Plan: Creates an execution plan, displaying the resources Terraform will create or modify.
+Terraform Apply: Applies the configuration to provision the infrastructure if triggered manually.
+Terraform Destroy: Applies the destroy to the infrastructure if triggered manually within the main branch.
