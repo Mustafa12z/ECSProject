@@ -1,5 +1,4 @@
-# #Stage 1: Build Stage
-
+# Stage 1: Build Stage
 FROM node:18-alpine AS build 
 
 WORKDIR /app
@@ -10,17 +9,20 @@ RUN yarn install
 
 COPY . .
 
-# #Stage 2: prod
-
+# Stage 2: Production Stage
 FROM node:18-alpine 
 
 WORKDIR /app
 
 COPY --from=build /app /app 
 
-EXPOSE 3001
+RUN adduser -D appuser
+USER appuser
+
+EXPOSE 3000
 
 CMD ["yarn", "start"]
+
 
 
 
