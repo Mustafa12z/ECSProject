@@ -14,5 +14,6 @@ elb-name                  = "ecs-elb"
 ecs-fargate-name          = "fargate"
 task-def-cpu              = 1024
 certificate_arn           = "arn:aws:acm:eu-west-2:590184076390:certificate/390e1827-22af-4dd5-926c-fce3c2f134d5"
-hosted_zone               = "teamcharlie.mustafamirreh.com"
+hosted_zone               = "teamcharlie.mustafamirreh.com" 
 subdomain_name            = "tm.teamcharlie.mustafamirreh.com"
+
