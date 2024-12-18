@@ -194,7 +194,7 @@ The terraform pipelines we have, are responsible for terraform plan, apply and d
 
 ## Architecture Diagram
 
-![alt text](w.PNG)
+![alt text](w.png)
 
 ### Workflow Summary
 
