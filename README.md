@@ -195,3 +195,22 @@ The terraform pipelines we have, are responsible for terraform plan, apply and d
 ## Architecture Diagram
 
 ![alt text](w.PNG)
+
+### Workflow Summary
+
+#### User Access
+- A user initiates a request, which is routed through the Internet Gateway (IGW) to the Application Load Balancer (ALB) in AWS.
+
+#### Traffic Management
+- The ALB forwards the request to an ECS task (a Docker container running the application) in a secure, private subnet.
+
+#### Application Processing
+- The ECS task processes the request, executes the application logic, and sends a response back via the ALB.
+
+#### Response to User
+- The ALB returns the response through the Internet Gateway to the user’s browser.
+
+#### Automated Deployment Pipeline
+- **GitHub Actions:** Builds and pushes Docker images to Amazon ECR.
+- **ECS:** Pulls the latest image from ECR and deploys it using Fargate.
+- **Terraform:** Manages the infrastructure (VPC, ALB, ECS, ECR) for consistency and automation.
